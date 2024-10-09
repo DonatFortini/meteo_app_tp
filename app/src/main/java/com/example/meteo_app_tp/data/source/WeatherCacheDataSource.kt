@@ -7,7 +7,7 @@ class WeatherCacheDataSource: IWeatherDataSource {
     override suspend fun getWeatherData(
         lat: String,
         long: String
-    ): WeatherResponse<WeatherForecast> {
+    ): WeatherResponse<List<WeatherForecast>> {
         TODO("Not yet implemented")
     }
 }

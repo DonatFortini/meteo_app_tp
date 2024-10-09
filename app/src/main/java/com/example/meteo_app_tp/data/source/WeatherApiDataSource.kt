@@ -16,9 +16,12 @@ class WeatherApiDataSource : IWeatherDataSource {
     override suspend fun getWeatherData(
         lat: String,
         long: String
-    ): WeatherResponse<WeatherForecast> {
+    ): WeatherResponse<List<WeatherForecast>> {
         return withContext(Dispatchers.IO) {
-            val url = String.format("https://api.open-meteo.com/v1/forecast?latitude=%S&longitude=%S&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,rain,wind_speed_10m&models=meteofrance_seamless",lat,long)
+            val url = String.format(
+                "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&hourly=temperature_2m,relative_humidity_2m,apparent_temperature,rain,wind_speed_10m&models=meteofrance_seamless",
+                lat, long
+            )
             val request = Request.Builder()
                 .url(url)
                 .build()
@@ -28,8 +31,8 @@ class WeatherApiDataSource : IWeatherDataSource {
                 if (response.isSuccessful) {
                     val jsonResponse = response.body?.string()
                     if (!jsonResponse.isNullOrEmpty()) {
-                        val weatherForecast = parseWeatherData(jsonResponse)
-                        WeatherResponse.Success(weatherForecast)
+                        val weatherForecastList = parseWeatherData(jsonResponse)
+                        WeatherResponse.Success(weatherForecastList)
                     } else {
                         WeatherResponse.Error("Empty response")
                     }
@@ -42,29 +45,40 @@ class WeatherApiDataSource : IWeatherDataSource {
         }
     }
 
-    private fun parseWeatherData(jsonResponse: String): WeatherForecast {
+    private fun parseWeatherData(jsonResponse: String): List<WeatherForecast> {
         val jsonObject = JSONObject(jsonResponse)
         val hourly = jsonObject.getJSONObject("hourly")
 
-        val time = hourly.getJSONArray("time").getString(0)
-        val temperature = hourly.getJSONArray("temperature_2m").getDouble(0)
-        val humidity = hourly.getJSONArray("relative_humidity_2m").getInt(0)
-        val apparentTemp = hourly.getJSONArray("apparent_temperature").getDouble(0)
-        val rain = hourly.getJSONArray("rain").getDouble(0)
-        val windSpeed = hourly.getJSONArray("wind_speed_10m").getDouble(0)
+        val times = hourly.getJSONArray("time")
+        val temperatures = hourly.getJSONArray("temperature_2m")
+        val humidities = hourly.getJSONArray("relative_humidity_2m")
+        val apparentTemps = hourly.getJSONArray("apparent_temperature")
+        val rains = hourly.getJSONArray("rain")
+        val windSpeeds = hourly.getJSONArray("wind_speed_10m")
 
-        return WeatherForecast(
-            time = time,
-            temp = temperature,
-            humdity = humidity,
-            app_temp = apparentTemp,
-            rain = rain,
-            wind_speed = windSpeed
-        )
+        val weatherForecastList = mutableListOf<WeatherForecast>()
+
+        for (i in 0 until times.length()) {
+            val time = times.getString(i)
+            val temperature = temperatures.optDouble(i, Double.NaN)
+            val humidity = humidities.optInt(i, -1)
+            val apparentTemp = apparentTemps.optDouble(i, Double.NaN)
+            val rain = rains.optDouble(i, Double.NaN)
+            val windSpeed = windSpeeds.optDouble(i, Double.NaN)
+
+            if (!temperature.isNaN() && humidity >= 0) {
+                val weatherForecast = WeatherForecast(
+                    time = time,
+                    temp = temperature,
+                    humidity = humidity,
+                    app_temp = apparentTemp,
+                    rain = rain,
+                    wind_speed = windSpeed
+                )
+                weatherForecastList.add(weatherForecast)
+            }
+        }
+
+        return weatherForecastList
     }
-
-
 }
-
-
-

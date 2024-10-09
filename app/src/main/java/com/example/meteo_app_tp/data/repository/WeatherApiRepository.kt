@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class WeatherApiRepository(private val dataSource: IWeatherDataSource) : IWeatherRepository {
-    override suspend fun getWeatherData(): Flow<WeatherForecast> = flow {
-        when (val response = dataSource.getWeatherData()) {
+    override suspend fun getWeatherData(lat:String,long:String): Flow<List<WeatherForecast>> = flow {
+        when (val response = dataSource.getWeatherData(lat,long)) {
             is WeatherResponse.Success -> {
                 emit(response.value)
             }
