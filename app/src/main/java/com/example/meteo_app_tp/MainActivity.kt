@@ -3,6 +3,7 @@ package com.example.meteo_app_tp
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -13,19 +14,19 @@ import com.example.meteo_app_tp.ui.homescreen.HomeScreen
 import com.example.meteo_app_tp.ui.theme.Meteo_app_tpTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import androidx.compose.runtime.mutableStateOf
+
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var currentLat: String = ""
-    private var currentLon: String = ""
+    private var currentLat = mutableStateOf("")
+    private var currentLon = mutableStateOf("")
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 startLocationUpdates()
             } else {
-                // Handle the case where permission is not granted
-                // E.g., show a message to the user
                 showPermissionDeniedMessage()
             }
         }
@@ -38,8 +39,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             Meteo_app_tpTheme {
                 HomeScreen(
-                    lat = currentLat,
-                    lon = currentLon
+                    lat = currentLat.value,
+                    lon = currentLon.value
                 )
             }
         }
@@ -59,12 +60,18 @@ class MainActivity : ComponentActivity() {
     private fun startLocationUpdates() {
         val sensorCoordinates = SensorCoordinates(fusedLocationClient)
         sensorCoordinates.startLocationUpdates(this) { lat, lon ->
-            currentLat = lat
-            currentLon = lon
+            currentLat.value = lat
+            currentLon.value = lon
         }
     }
 
     private fun showPermissionDeniedMessage() {
-        // Implement your logic to show a message to the user
+        Toast.makeText(
+            this,
+            "Location permission is required to display weather information.",
+            Toast.LENGTH_LONG
+        ).show()
     }
+
+
 }
