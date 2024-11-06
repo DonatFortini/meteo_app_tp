@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.material)
     implementation (libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.material.icons.extended)
