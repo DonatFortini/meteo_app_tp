@@ -100,7 +100,7 @@ fun TopBar(city: String) {
         }
     }
 }
-
+// TODO fix the hour get the right hour for forecast
 @Composable
 fun MainWeatherDisplay(forecast: WeatherForecast) {
     val icon = getWeatherIcon(forecast)
