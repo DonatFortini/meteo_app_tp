@@ -78,8 +78,8 @@ fun MainWeatherDisplay(
                 WeatherInfoRow(
                     items = listOf(
                         WeatherInfo(Icons.Default.Water, "${forecast.humidity}%", "Humidity"),
-                        WeatherInfo(Icons.Default.WindPower, "${forecast.wind_speed}m/s", "Wind Speed"),
-                        WeatherInfo(Icons.Default.WaterDrop, "${forecast.rain}%", "Rain Probability")
+                        WeatherInfo(Icons.Default.WindPower, "${forecast.wind_speed}km/h", "Wind Speed"),
+                        WeatherInfo(Icons.Default.WaterDrop, "${forecast.rain}mm", "Rain ")
                     )
                 )
             }

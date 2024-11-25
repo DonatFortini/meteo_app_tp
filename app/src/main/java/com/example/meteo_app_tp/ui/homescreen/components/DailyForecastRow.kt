@@ -62,8 +62,8 @@ fun DailyForecastRow(
         ) {
             WeatherInfoRow(
                 items = listOf(
-                    WeatherInfo(Icons.Default.WaterDrop, "${forecast.rain}%", "Rain"),
-                    WeatherInfo(Icons.Default.WindPower, "${forecast.wind_speed}m/s", "Wind")
+                    WeatherInfo(Icons.Default.WaterDrop, "${forecast.rain}mm", "Rain"),
+                    WeatherInfo(Icons.Default.WindPower, "${forecast.wind_speed}km/h", "Wind")
                 ),
                 compact = true
             )

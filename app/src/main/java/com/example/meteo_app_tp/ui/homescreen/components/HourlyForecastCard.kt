@@ -56,7 +56,7 @@ fun HourlyForecastCard(
             )
 
             Text(
-                text = "${forecast.rain}% rain",
+                text = "${forecast.rain}mm",
                 color = TextColorGray.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodySmall
             )
