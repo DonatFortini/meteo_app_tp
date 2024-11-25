@@ -1,2 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <string name="app_name">meteo_app_tp</string>
+    <string name="location">لديه</string>
+    <string name="main_text">اليوم</string>
+    <string name="second_text">في الساعات القادمة</string>
+    <string name="third_text">الأيام القادمة</string>
+    <string name="settings_title">الإعدادات</string>
+    <string name="select_language">اختر اللغة</string>
+    <string name="language_selection">لغة</string>
+</resources>

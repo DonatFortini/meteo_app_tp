@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    implementation (libs.androidx.datastore.preferences.v100)
+    implementation (libs.androidx.navigation.compose)
+    implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material)
     implementation (libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.material.icons.core)

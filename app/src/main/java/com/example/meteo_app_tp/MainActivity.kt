@@ -1,6 +1,7 @@
 package com.example.meteo_app_tp
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
@@ -9,18 +10,41 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.meteo_app_tp.data.model.SensorCoordinates
+import com.example.meteo_app_tp.data.repository.SettingsRepository
 import com.example.meteo_app_tp.ui.homescreen.HomeScreen
+import com.example.meteo_app_tp.ui.settings.SettingsScreen
+import com.example.meteo_app_tp.ui.settings.utils.LocaleHelper
 import com.example.meteo_app_tp.ui.theme.Meteo_app_tpTheme
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentLat = mutableStateOf("")
     private var currentLon = mutableStateOf("")
+    private lateinit var settingsRepository: SettingsRepository
+
+    override fun attachBaseContext(newBase: Context) {
+        settingsRepository = SettingsRepository(newBase.dataStore)
+
+        val language = runBlocking {
+            settingsRepository.getCurrentLanguage().first()
+        }
+
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, language.code))
+    }
 
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -34,21 +58,46 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         requestLocationPermission()
+
         setContent {
+            val navController = rememberNavController()
+
             Meteo_app_tpTheme {
-                HomeScreen(
-                    lat = currentLat.value,
-                    lon = currentLon.value
-                )
+                NavHost(navController = navController, startDestination = "home") {
+                    composable("home") {
+                        HomeScreen(
+                            lat = currentLat.value,
+                            lon = currentLon.value,
+                            onSettingsClick = {
+                                navController.navigate("settings")
+                            }
+                        )
+                    }
+                    composable("settings") {
+                        SettingsScreen(
+                            settingsRepository = settingsRepository,
+                            onLanguageChanged = {
+                                runOnUiThread {
+                                    recreate()
+                                    navController.navigate("home")
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
     }
 
     private fun requestLocationPermission() {
         when {
-            ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+            ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
                 startLocationUpdates()
             }
             else -> {
@@ -72,6 +121,4 @@ class MainActivity : ComponentActivity() {
             Toast.LENGTH_LONG
         ).show()
     }
-
-
 }
