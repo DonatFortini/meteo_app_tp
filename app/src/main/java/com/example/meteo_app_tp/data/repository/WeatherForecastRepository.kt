@@ -2,6 +2,7 @@ package com.example.meteo_app_tp.data.repository
 
 import com.example.meteo_app_tp.data.model.WeatherForecast
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 
 class WeatherForecastRepository(
@@ -18,21 +19,19 @@ class WeatherForecastRepository(
                     emit(forecasts)
                 }
             } catch (e: Exception) {
-                 weatherCacheRepository.getWeatherData(lat, lon).collect { cachedData ->
-                    if (cachedData.isNotEmpty()) {
-                        emit(cachedData)
-                    } else {
-                        emit(emptyList())
-                    }
-                }
+                emitFromCache(lat, lon)
             }
         } else {
-            weatherCacheRepository.getWeatherData(lat, lon).collect { cachedData ->
-                if (cachedData.isNotEmpty()) {
-                    emit(cachedData)
-                } else {
-                    emit(emptyList())
-                }
+            emitFromCache(lat, lon)
+        }
+    }
+
+    private suspend fun FlowCollector<List<WeatherForecast>>.emitFromCache(lat: String, lon: String) {
+        weatherCacheRepository.getWeatherData(lat, lon).collect { cachedData ->
+            if (cachedData.isNotEmpty()) {
+                emit(cachedData)
+            } else {
+                emit(emptyList())
             }
         }
     }

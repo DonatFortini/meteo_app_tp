@@ -4,7 +4,6 @@ package com.example.meteo_app_tp.ui.homescreen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.meteo_app_tp.data.model.CityResponse
-import com.example.meteo_app_tp.data.model.WeatherCache
 import com.example.meteo_app_tp.data.repository.GeocodingRepository
 import com.example.meteo_app_tp.data.repository.WeatherApiRepository
 import com.example.meteo_app_tp.data.repository.WeatherCacheRepository
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-// TODO fix to add the new repo
 class HomeScreenViewModel(
     weatherApiRepository: WeatherApiRepository = WeatherApiRepository(WeatherApiDataSource()),
     weatherCacheRepository: WeatherCacheRepository = WeatherCacheRepository(WeatherCacheDataSource()),

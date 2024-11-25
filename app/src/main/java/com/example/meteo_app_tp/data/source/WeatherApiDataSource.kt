@@ -51,7 +51,7 @@ class WeatherApiDataSource : IWeatherDataSource {
 
         val times = hourly.getJSONArray("time")
         val temperatures = hourly.getJSONArray("temperature_2m")
-        val humidities = hourly.getJSONArray("relative_humidity_2m")
+        val humanities = hourly.getJSONArray("relative_humidity_2m")
         val apparentTemps = hourly.getJSONArray("apparent_temperature")
         val rains = hourly.getJSONArray("rain")
         val windSpeeds = hourly.getJSONArray("wind_speed_10m")
@@ -61,7 +61,7 @@ class WeatherApiDataSource : IWeatherDataSource {
         for (i in 0 until times.length()) {
             val time = times.getString(i)
             val temperature = temperatures.optDouble(i, Double.NaN)
-            val humidity = humidities.optInt(i, -1)
+            val humidity = humanities.optInt(i, -1)
             val apparentTemp = apparentTemps.optDouble(i, Double.NaN)
             val rain = rains.optDouble(i, Double.NaN)
             val windSpeed = windSpeeds.optDouble(i, Double.NaN)

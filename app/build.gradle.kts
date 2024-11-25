@@ -40,6 +40,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.kotlinx.coroutines.test)
+    implementation(libs.mockito.core)
+    implementation(libs.mockito.kotlin)
     implementation (libs.androidx.datastore.preferences.v100)
     implementation (libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)

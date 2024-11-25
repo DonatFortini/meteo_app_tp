@@ -11,6 +11,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -38,12 +41,10 @@ class MainActivity : ComponentActivity() {
 
     override fun attachBaseContext(newBase: Context) {
         settingsRepository = SettingsRepository(newBase.dataStore)
-
         val language = runBlocking {
             settingsRepository.getCurrentLanguage().first()
         }
-
-        super.attachBaseContext(LocaleHelper.setLocale(newBase, language.code))
+        super.attachBaseContext(LocaleHelper.setLocale(newBase, language.code.toString()))
     }
 
     private val requestPermissionLauncher =
@@ -66,26 +67,34 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             Meteo_app_tpTheme {
-                NavHost(navController = navController, startDestination = "home") {
-                    composable("home") {
-                        HomeScreen(
-                            lat = currentLat.value,
-                            lon = currentLon.value,
-                            onSettingsClick = {
-                                navController.navigate("settings")
-                            }
-                        )
-                    }
-                    composable("settings") {
-                        SettingsScreen(
-                            settingsRepository = settingsRepository,
-                            onLanguageChanged = {
-                                runOnUiThread {
-                                    recreate()
-                                    navController.navigate("home")
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                ) { paddingValues ->
+                    NavHost(
+                        navController = navController,
+                        startDestination = "home",
+                        modifier = Modifier.padding(paddingValues)
+                    ) {
+                        composable("home") {
+                            HomeScreen(
+                                lat = currentLat.value,
+                                lon = currentLon.value,
+                                onSettingsClick = {
+                                    navController.navigate("settings")
                                 }
-                            }
-                        )
+                            )
+                        }
+                        composable("settings") {
+                            SettingsScreen(
+                                settingsRepository = settingsRepository,
+                                onLanguageChanged = {
+                                    runOnUiThread {
+                                        recreate()
+                                        navController.navigate("home")
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }

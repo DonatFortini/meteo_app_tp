@@ -1,8 +1,6 @@
 package com.example.meteo_app_tp.ui.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,14 +9,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-
 import com.example.meteo_app_tp.R
 import com.example.meteo_app_tp.data.repository.SettingsRepository
-import com.example.meteo_app_tp.ui.homescreen.utils.WeatherConstants
+import com.example.meteo_app_tp.ui.common.SharedScreenLayout
 import com.example.meteo_app_tp.ui.settings.components.LanguageSelector
 import com.example.meteo_app_tp.ui.theme.getBackgroundBrush
 
@@ -30,7 +26,6 @@ fun SettingsScreen(
     val viewModel = remember { SettingsViewModel(settingsRepository) }
     val settingsState = viewModel.settingsState.collectAsState().value
     val isLanguageUpdated = viewModel.isLanguageUpdated.collectAsState().value
-    val spacing = WeatherConstants.DEFAULT_PADDING.dp
     val backgroundBrush = getBackgroundBrush(null)
 
     if (isLanguageUpdated) {
@@ -38,12 +33,7 @@ fun SettingsScreen(
         viewModel.resetLanguageUpdateFlag()
     }
 
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(brush = backgroundBrush)
-        .padding(spacing)
-        .padding(top = spacing),
-        contentAlignment = Alignment.TopCenter) {
+    SharedScreenLayout(backgroundBrush = backgroundBrush) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
