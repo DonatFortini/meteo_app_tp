@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.map
 class SettingsRepository(private val dataStore: DataStore<Preferences>) {
     private object PreferencesKeys {
         val LANGUAGE = stringPreferencesKey("language")
+        val DEFAULT_CITY_LAT = stringPreferencesKey("default_city_lat")
+        val DEFAULT_CITY_LON = stringPreferencesKey("default_city_lon")
+        val DEFAULT_CITY_NAME = stringPreferencesKey("default_city_name")
     }
 
     fun getCurrentLanguage(): Flow<Language> {
@@ -23,6 +26,24 @@ class SettingsRepository(private val dataStore: DataStore<Preferences>) {
     suspend fun setLanguage(language: Language) {
         dataStore.edit { preferences ->
             preferences[PreferencesKeys.LANGUAGE] = language.code
+        }
+    }
+
+    fun getDefaultCity(): Flow<Triple<String?, String?, String?>> {
+        return dataStore.data.map { preferences ->
+            Triple(
+                preferences[PreferencesKeys.DEFAULT_CITY_LAT],
+                preferences[PreferencesKeys.DEFAULT_CITY_LON],
+                preferences[PreferencesKeys.DEFAULT_CITY_NAME]
+            )
+        }
+    }
+
+    suspend fun setDefaultCity(lat: String, lon: String, cityName: String) {
+        dataStore.edit { preferences ->
+            preferences[PreferencesKeys.DEFAULT_CITY_LAT] = lat
+            preferences[PreferencesKeys.DEFAULT_CITY_LON] = lon
+            preferences[PreferencesKeys.DEFAULT_CITY_NAME] = cityName
         }
     }
 }

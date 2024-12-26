@@ -2,11 +2,13 @@ package com.example.meteo_app_tp.data.source
 
 import android.util.Log
 import com.example.meteo_app_tp.data.model.CityResponse
+import com.example.meteo_app_tp.data.model.CitySearchResult
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
 
@@ -44,6 +46,38 @@ class GeocodingApiDataSource : IGeocodingDataSource {
         }
     }
 
+    override suspend fun searchCities(cityName: String): List<CitySearchResult> {
+        return withContext(Dispatchers.IO) {
+            val encodedCityName = java.net.URLEncoder.encode(cityName, "UTF-8")
+            val url = "https://nominatim.openstreetmap.org/search?q=$encodedCityName&format=json&limit=5&featureType=city"
+
+            val request = Request.Builder()
+                .url(url)
+                .header("User-Agent", "YourAppName/1.0 (your-email@example.com)")
+                .build()
+
+            try {
+                val response = client.newCall(request).execute()
+                Log.d("le.meteo_app_tp", "Search cities response code: ${response.code}")
+
+                if (response.isSuccessful) {
+                    val jsonResponse = response.body?.string()
+                    if (!jsonResponse.isNullOrEmpty()) {
+                        parseCitySearchResults(jsonResponse)
+                    } else {
+                        emptyList()
+                    }
+                } else {
+                    Log.e("le.meteo_app_tp", "Failed to search cities: ${response.code} ${response.message}")
+                    emptyList()
+                }
+            } catch (e: IOException) {
+                Log.e("le.meteo_app_tp", "Error while searching cities: ${e.message}", e)
+                emptyList()
+            }
+        }
+    }
+
 
     fun parseCityName(jsonResponse: String): String {
         val jsonObject = JSONObject(jsonResponse)
@@ -55,6 +89,35 @@ class GeocodingApiDataSource : IGeocodingDataSource {
             else -> {
                 "Unknown City"
             }
+        }
+    }
+
+     fun parseCitySearchResults(jsonResponse: String): List<CitySearchResult> {
+        return try {
+            val jsonArray = JSONArray(jsonResponse)
+            val results = mutableListOf<CitySearchResult>()
+
+            for (i in 0 until jsonArray.length()) {
+                val item = jsonArray.getJSONObject(i)
+
+                // Check if it's a city/town/village
+                val type = item.optString("type")
+                if (type in listOf("city", "town", "village", "municipality")) {
+                    val displayName = item.getString("display_name")
+                    val nameParts = displayName.split(", ")
+
+                    results.add(CitySearchResult(
+                        name = nameParts.firstOrNull() ?: "Unknown",
+                        country = nameParts.lastOrNull() ?: "Unknown",
+                        lat = item.getDouble("lat"),
+                        lon = item.getDouble("lon")
+                    ))
+                }
+            }
+            results
+        } catch (e: Exception) {
+            Log.e("le.meteo_app_tp", "Error parsing city search results: ${e.message}", e)
+            emptyList()
         }
     }
 }

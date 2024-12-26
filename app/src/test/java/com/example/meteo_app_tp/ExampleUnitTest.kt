@@ -1,8 +1,6 @@
 package com.example.meteo_app_tp
 
 import com.example.meteo_app_tp.data.model.WeatherForecast
-import com.example.meteo_app_tp.data.repository.WeatherApiRepository
-import com.example.meteo_app_tp.data.repository.WeatherCacheRepository
 import com.example.meteo_app_tp.data.repository.WeatherForecastRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow

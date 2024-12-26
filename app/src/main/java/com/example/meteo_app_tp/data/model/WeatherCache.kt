@@ -4,4 +4,5 @@ data class WeatherCache(
     val forecasts: List<WeatherForecast>,
     val latitude: String,
     val longitude: String,
+    val timestamp: Long
 )
