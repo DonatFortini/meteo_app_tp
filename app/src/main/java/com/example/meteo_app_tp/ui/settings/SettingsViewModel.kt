@@ -30,7 +30,7 @@ class SettingsViewModel(
     fun updateLanguage(language: Language) {
         viewModelScope.launch {
             settingsRepository.setLanguage(language)
-            _isLanguageUpdated.value = true // Indicate update is done
+            _isLanguageUpdated.value = true
         }
     }
 

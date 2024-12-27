@@ -99,8 +99,6 @@ class GeocodingApiDataSource : IGeocodingDataSource {
 
             for (i in 0 until jsonArray.length()) {
                 val item = jsonArray.getJSONObject(i)
-
-                // Check if it's a city/town/village
                 val type = item.optString("type")
                 if (type in listOf("city", "town", "village", "municipality")) {
                     val displayName = item.getString("display_name")

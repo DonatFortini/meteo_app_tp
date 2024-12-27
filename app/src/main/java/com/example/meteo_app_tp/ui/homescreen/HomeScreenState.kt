@@ -9,11 +9,9 @@ data class HomeScreenState(
     val city: String = "Unknown City",
     val isConnected: Boolean = true,
     val isRefreshing: Boolean = false,
-    val dataSource: DataSource = DataSource.NONE
 )
 
 enum class DataSource {
     CACHE,
     API,
-    NONE
 }

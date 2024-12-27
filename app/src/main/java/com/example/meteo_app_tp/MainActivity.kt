@@ -3,12 +3,16 @@ package com.example.meteo_app_tp
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.foundation.layout.*
@@ -20,9 +24,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.meteo_app_tp.data.WeatherCacheManager
 import com.example.meteo_app_tp.data.model.SensorCoordinates
 import com.example.meteo_app_tp.data.repository.SettingsRepository
-import com.example.meteo_app_tp.ui.homescreen.HomeScreen
+import com.example.meteo_app_tp.ui.ConditionalWeatherScreen
 import com.example.meteo_app_tp.ui.settings.SettingsScreen
 import com.example.meteo_app_tp.ui.settings.utils.LocaleHelper
 import com.example.meteo_app_tp.ui.theme.Meteo_app_tpTheme
@@ -31,6 +36,7 @@ import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
+
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
 class MainActivity : ComponentActivity() {
@@ -38,6 +44,7 @@ class MainActivity : ComponentActivity() {
     private var currentLat = mutableStateOf("")
     private var currentLon = mutableStateOf("")
     private lateinit var settingsRepository: SettingsRepository
+    private lateinit var weatherCacheManager: WeatherCacheManager
 
     override fun attachBaseContext(newBase: Context) {
         settingsRepository = SettingsRepository(newBase.dataStore)
@@ -56,9 +63,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        weatherCacheManager = WeatherCacheManager(
+            getSharedPreferences(WeatherCacheManager.PREFS_NAME, MODE_PRIVATE)
+        )
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         requestLocationPermission()
@@ -67,21 +79,18 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             Meteo_app_tpTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                ) { paddingValues ->
+                Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
                     NavHost(
                         navController = navController,
                         startDestination = "home",
                         modifier = Modifier.padding(paddingValues)
                     ) {
                         composable("home") {
-                            HomeScreen(
+                            ConditionalWeatherScreen(
                                 lat = currentLat.value,
                                 lon = currentLon.value,
-                                onSettingsClick = {
-                                    navController.navigate("settings")
-                                }
+                                onSettingsClick = { navController.navigate("settings") },
+                                cacheManager = weatherCacheManager
                             )
                         }
                         composable("settings") {

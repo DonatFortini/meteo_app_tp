@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.gson)
     implementation(libs.kotlinx.coroutines.test)
     implementation(libs.mockito.core)
     implementation(libs.mockito.kotlin)

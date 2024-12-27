@@ -30,7 +30,7 @@ fun HomeScreen(
 
     LaunchedEffect(lat, lon) {
         if (lat.isNotEmpty() && lon.isNotEmpty()) {
-            viewModel.fetchWeatherData(lat, lon)
+            viewModel.fetchWeatherData(lat, lon,true)
         }
     }
 
