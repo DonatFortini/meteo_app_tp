@@ -13,15 +13,26 @@ import androidx.compose.ui.unit.dp
 import com.example.meteo_app_tp.ui.homescreen.HomeScreenState
 import com.example.meteo_app_tp.ui.homescreen.utils.WeatherConstants
 import com.example.meteo_app_tp.ui.theme.TextColorGray
+import com.example.meteo_app_tp.data.repository.GeocodingRepository
 
 @Composable
 fun WeatherContent(
     homeScreenState: HomeScreenState,
+    geocodingRepository: GeocodingRepository,
+    onCitySelected: (lat: String, lon: String, cityName: String) -> Unit,
     onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.padding(top = WeatherConstants.DEFAULT_PADDING.dp)) {
-        TopBar(homeScreenState.city,onSettingsClick)
+
+    Column(
+        modifier = modifier.padding(top = WeatherConstants.DEFAULT_PADDING.dp)
+    ) {
+        TopBar(
+            city = homeScreenState.city,
+            geocodingRepository = geocodingRepository,
+            onCitySelected = onCitySelected,
+            onSettingsClick = onSettingsClick
+        )
 
         when {
             homeScreenState.isLoading -> LoadingIndicator()

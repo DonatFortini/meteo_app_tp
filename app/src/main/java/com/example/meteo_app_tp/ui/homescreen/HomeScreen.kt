@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.meteo_app_tp.data.repository.GeocodingRepository
 import com.example.meteo_app_tp.ui.common.SharedScreenLayout
 import com.example.meteo_app_tp.ui.homescreen.components.WeatherContent
 import com.example.meteo_app_tp.ui.theme.*
@@ -18,6 +19,7 @@ import com.example.meteo_app_tp.ui.theme.*
 fun HomeScreen(
     lat: String,
     lon: String,
+    geocodingRepository: GeocodingRepository,
     onSettingsClick: () -> Unit,
     viewModel: HomeScreenViewModel = viewModel()
 ) {
@@ -30,7 +32,7 @@ fun HomeScreen(
 
     LaunchedEffect(lat, lon) {
         if (lat.isNotEmpty() && lon.isNotEmpty()) {
-            viewModel.fetchWeatherData(lat, lon,true)
+            viewModel.fetchWeatherData(lat, lon, true)
         }
     }
 
@@ -46,6 +48,10 @@ fun HomeScreen(
         ) {
             WeatherContent(
                 homeScreenState = homeScreenState,
+                geocodingRepository = geocodingRepository,
+                onCitySelected = { newLat, newLon, cityName ->
+                    viewModel.fetchWeatherData(newLat, newLon, true)
+                },
                 onSettingsClick = onSettingsClick,
                 modifier = Modifier.fillMaxSize()
             )

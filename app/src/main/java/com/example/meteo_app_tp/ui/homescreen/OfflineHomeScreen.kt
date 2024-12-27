@@ -5,6 +5,8 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.meteo_app_tp.data.model.WeatherForecast
+import com.example.meteo_app_tp.data.repository.GeocodingRepository
+import com.example.meteo_app_tp.data.source.GeocodingApiDataSource
 import com.example.meteo_app_tp.ui.common.SharedScreenLayout
 import com.example.meteo_app_tp.ui.homescreen.components.*
 import com.example.meteo_app_tp.ui.theme.getBackgroundBrush
@@ -56,6 +58,9 @@ fun OfflineHomeScreen(
 
     val backgroundBrush = getBackgroundBrush(null)
 
+    var geoc = GeocodingRepository(
+        geocodingDataSource = GeocodingApiDataSource()
+    )
     SharedScreenLayout(backgroundBrush = backgroundBrush) {
         WeatherContent(
             homeScreenState = HomeScreenState(
@@ -66,7 +71,9 @@ fun OfflineHomeScreen(
                 errorMessage = null
             ),
             onSettingsClick = onSettingsClick,
-            modifier = modifier
+            modifier = modifier,
+            geocodingRepository = geoc,
+            onCitySelected = TODO()
         )
     }
 }

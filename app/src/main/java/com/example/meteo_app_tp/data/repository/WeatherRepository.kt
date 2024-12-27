@@ -4,6 +4,7 @@ package com.example.meteo_app_tp.data.repository
 import com.example.meteo_app_tp.data.model.CityResponse
 import com.example.meteo_app_tp.data.model.WeatherData
 import com.example.meteo_app_tp.data.model.WeatherDataState
+import com.example.meteo_app_tp.data.model.WeatherDataState.*
 import com.example.meteo_app_tp.data.model.WeatherForecast
 import com.example.meteo_app_tp.data.model.WeatherResponse
 import com.example.meteo_app_tp.data.source.IGeocodingDataSource
@@ -20,7 +21,7 @@ class WeatherRepository(
 
 
     fun getWeatherData(lat: String, long: String, isNetworkAvailable: Boolean): Flow<WeatherDataState> = flow {
-        emit(WeatherDataState.Loading)
+        emit(Loading)
 
         try {
             val cityName = when (val cityResponse = geocodingDataSource.getClosestCityName(lat.toDouble(), long.toDouble())) {
@@ -29,18 +30,22 @@ class WeatherRepository(
             }
 
             if (!isNetworkAvailable) {
+
                 when (val cacheResponse = weatherCacheDataSource.getWeatherData(lat, long)) {
                     is WeatherResponse.Success -> {
-                        emit(WeatherDataState.Success(
-                            WeatherData(
-                                cityName,
-                                cacheResponse.value,
-                                DataSource.CACHE
+                        emit(
+                            Success(
+                                WeatherData(
+                                    cityName,
+                                    cacheResponse.value,
+                                    DataSource.CACHE
+                                )
                             )
-                        ))
+                        )
                     }
+
                     is WeatherResponse.Error -> {
-                        emit(WeatherDataState.Error("No internet connection and no cached data available"))
+
                     }
                 }
             } else {

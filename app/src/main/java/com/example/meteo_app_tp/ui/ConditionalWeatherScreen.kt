@@ -2,7 +2,9 @@ package com.example.meteo_app_tp.ui
 
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.*
@@ -13,6 +15,8 @@ import com.example.meteo_app_tp.ui.homescreen.HomeScreen
 import com.example.meteo_app_tp.ui.homescreen.OfflineHomeScreen
 import com.example.meteo_app_tp.ui.homescreen.HomeScreenViewModel
 import com.example.meteo_app_tp.ui.homescreen.HomeScreenViewModelFactory
+import com.example.meteo_app_tp.data.repository.GeocodingRepository
+import com.example.meteo_app_tp.data.source.GeocodingApiDataSource
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -33,16 +37,16 @@ fun ConditionalWeatherScreen(
     DisposableEffect(context) {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkCallback = object : ConnectivityManager.NetworkCallback() {
-            override fun onAvailable(network: android.net.Network) {
+            override fun onAvailable(network: Network) {
                 isNetworkAvailable = true
             }
 
-            override fun onLost(network: android.net.Network) {
+            override fun onLost(network: Network) {
                 isNetworkAvailable = false
             }
         }
 
-        val networkRequest = android.net.NetworkRequest.Builder()
+        val networkRequest = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .build()
         connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
@@ -66,11 +70,15 @@ fun ConditionalWeatherScreen(
             OfflineHomeScreen(onSettingsClick = onSettingsClick)
         }
         else -> {
+            var geoc = GeocodingRepository(
+                geocodingDataSource = GeocodingApiDataSource()
+            )
             HomeScreen(
                 lat = lat,
                 lon = lon,
                 onSettingsClick = onSettingsClick,
-                viewModel = viewModel
+                viewModel = viewModel,
+                geocodingRepository = geoc
             )
         }
     }
