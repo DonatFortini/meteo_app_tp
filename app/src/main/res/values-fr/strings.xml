@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">meteo_app_tp</string>
-    <string name="location">À</string>
-    <string name="main_text">Aujourd\'hui</string>
-    <string name="second_text">Dans les heures à venir</string>
-    <string name="third_text">Prochain Jours</string>
-    <string name="settings_title">Paramètres</string>
-    <string name="select_language">Choisir la langue</string>
-    <string name="language_selection">Langue</string>
+    <!-- Common -->
+    <string name="app_name">Météo</string>
+    <string name="unknown_error">Une erreur inconnue s\'est produite</string>
+    <string name="no_internet">Pas de connexion Internet</string>
+
+    <!-- Weather Display Labels -->
+    <string name="current_weather">Météo Actuelle</string>
+    <string name="hourly_forecast">Prévisions Horaires</string>
+    <string name="daily_forecast">Prévisions Quotidiennes</string>
+
+    <!-- Weather Metrics -->
+    <string name="temperature">Température</string>
+    <string name="humidity">Humidité</string>
+    <string name="wind_speed">Vitesse du Vent</string>
+    <string name="rain">Pluie</string>
+    <string name="rain_chance">Risque de Pluie</string>
+
+    <!-- Units -->
+    <string name="celsius">°C</string>
+    <string name="kilometers_per_hour">km/h</string>
+    <string name="millimeters">mm</string>
+    <string name="percentage">%</string>
+
+    <!-- Settings -->
+    <string name="settings">Paramètres</string>
+    <string name="language">Langue</string>
+    <string name="english">Anglais</string>
+    <string name="french">Français</string>
+    <string name="arabic">Arabe</string>
+
+    <string name="theme_light">Clair</string>
+    <string name="theme_dark">Sombre</string>
+    <string name="theme_system">Système</string>
+    <string name="theme_selection">Sélection du thème</string>
+    <string name="cancel">Annuler</string>
 </resources>

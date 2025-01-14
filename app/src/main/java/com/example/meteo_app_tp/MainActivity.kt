@@ -1,108 +1,114 @@
 package com.example.meteo_app_tp
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
-import android.os.Build
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.getValue
+
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.meteo_app_tp.data.WeatherCacheManager
-import com.example.meteo_app_tp.data.model.SensorCoordinates
-import com.example.meteo_app_tp.data.repository.SettingsRepository
-import com.example.meteo_app_tp.ui.ConditionalWeatherScreen
-import com.example.meteo_app_tp.ui.settings.SettingsScreen
-import com.example.meteo_app_tp.ui.settings.utils.LocaleHelper
-import com.example.meteo_app_tp.ui.theme.Meteo_app_tpTheme
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.example.meteo_app_tp.data.local.SettingsManager
+import com.example.meteo_app_tp.data.local.WeatherDatabase
+import com.example.meteo_app_tp.data.remote.GeocodingService
+import com.example.meteo_app_tp.data.remote.WeatherRemoteDataSource
+import com.example.meteo_app_tp.data.repository.WeatherRepository
+import com.example.meteo_app_tp.ui.screens.MainScreen
+import com.example.meteo_app_tp.ui.screens.SettingsScreen
+import com.example.meteo_app_tp.ui.theme.WeatherAppTheme
+import com.example.meteo_app_tp.ui.viewmodels.SettingsViewModel
+import com.example.meteo_app_tp.ui.viewmodels.WeatherViewModel
+import com.example.meteo_app_tp.utils.NetworkConnectivityManager
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import java.util.Locale
 
-
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
+sealed class Screen(val route: String) {
+    object Weather : Screen("weather")
+    object Settings : Screen("settings")
+}
 
 class MainActivity : ComponentActivity() {
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var currentLat = mutableStateOf("")
-    private var currentLon = mutableStateOf("")
-    private lateinit var settingsRepository: SettingsRepository
-    private lateinit var weatherCacheManager: WeatherCacheManager
+    private lateinit var db: WeatherDatabase
+    private lateinit var weatherRepository: WeatherRepository
+    private lateinit var settingsManager: SettingsManager
+    private lateinit var networkConnectivityManager: NetworkConnectivityManager
+    private lateinit var geocodingService: GeocodingService
 
-    override fun attachBaseContext(newBase: Context) {
-        settingsRepository = SettingsRepository(newBase.dataStore)
-        val language = runBlocking {
-            settingsRepository.getCurrentLanguage().first()
-        }
-        super.attachBaseContext(LocaleHelper.setLocale(newBase, language.code.toString()))
-    }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-            if (isGranted) {
-                startLocationUpdates()
-            } else {
-                showPermissionDeniedMessage()
-            }
-        }
-
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
 
-        weatherCacheManager = WeatherCacheManager(
-            getSharedPreferences(WeatherCacheManager.PREFS_NAME, MODE_PRIVATE)
+        db = WeatherDatabase.getDatabase(applicationContext)
+        geocodingService = GeocodingService()
+        weatherRepository = WeatherRepository(
+            db.weatherDao(),
+            WeatherRemoteDataSource(),
+            geocodingService
         )
+        val settingsManager = SettingsManager(applicationContext)
+        val language = settingsManager.settingsFlow.value.language
+        updateLocale(language)
+        networkConnectivityManager = NetworkConnectivityManager(this)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-        requestLocationPermission()
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        networkConnectivityManager.startMonitoring()
 
         setContent {
             val navController = rememberNavController()
+            val settingsViewModel = viewModel {
+                SettingsViewModel(settingsManager)
+            }
+            val weatherViewModel = viewModel {
+                WeatherViewModel(
+                    context = applicationContext,
+                    weatherRepository = weatherRepository,
+                    fusedLocationClient = fusedLocationClient,
+                    networkConnectivityManager = networkConnectivityManager
+                )
+            }
+            val settingsState by settingsViewModel.state.collectAsStateWithLifecycle()
+            val networkState by networkConnectivityManager.isConnected.collectAsStateWithLifecycle()
 
-            Meteo_app_tpTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { paddingValues ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = "home",
-                        modifier = Modifier.padding(paddingValues)
-                    ) {
-                        composable("home") {
-                            ConditionalWeatherScreen(
-                                lat = currentLat.value,
-                                lon = currentLon.value,
-                                onSettingsClick = { navController.navigate("settings") },
-                                cacheManager = weatherCacheManager
-                            )
-                        }
-                        composable("settings") {
-                            SettingsScreen(
-                                settingsRepository = settingsRepository,
-                                onLanguageChanged = {
-                                    runOnUiThread {
-                                        recreate()
-                                        navController.navigate("home")
+            LaunchedEffect(settingsState.language) {
+                updateLocale(settingsState.language)
+            }
+
+            WeatherAppTheme(darkTheme = settingsState.isDarkMode) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    Box {
+                        NavHost(
+                            navController = navController,
+                            startDestination = Screen.Weather.route
+                        ) {
+                            composable(Screen.Weather.route) {
+                                MainScreen(
+                                    weatherViewModel = weatherViewModel,
+                                    onSettingsClick = {
+                                        navController.navigate(Screen.Settings.route)
+                                    },
+                                    isNetworkConnected = networkState
+                                )
+                            }
+                            composable(Screen.Settings.route) {
+                                SettingsScreen(
+                                    settingsViewModel = settingsViewModel,
+                                    onBackClick = {
+                                        navController.popBackStack()
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     }
                 }
@@ -110,33 +116,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun requestLocationPermission() {
-        when {
-            ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> {
-                startLocationUpdates()
-            }
-            else -> {
-                requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
-            }
-        }
-    }
+    private fun updateLocale(languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
 
-    private fun startLocationUpdates() {
-        val sensorCoordinates = SensorCoordinates(fusedLocationClient)
-        sensorCoordinates.startLocationUpdates(this) { lat, lon ->
-            currentLat.value = lat
-            currentLon.value = lon
-        }
-    }
+        val configuration = resources.configuration
+        configuration.setLocale(locale)
 
-    private fun showPermissionDeniedMessage() {
-        Toast.makeText(
-            this,
-            "Location permission is required to display weather information.",
-            Toast.LENGTH_LONG
-        ).show()
+        resources.updateConfiguration(configuration, resources.displayMetrics)
     }
 }

@@ -1,54 +1,37 @@
 package com.example.meteo_app_tp.ui.theme
 
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Light Theme Colors
+val LightPrimary = Color(0xFF2196F3)  // Blue
+val LightPrimaryVariant = Color(0xFF1976D2)  // Darker Blue
+val LightSecondary = Color(0xFF03DAC5)  // Teal
+val LightBackground = Color(0xFFFAFAFA)  // Almost White
+val LightSurface = Color(0xFFFFFFFF)  // White
+val LightError = Color(0xFFB00020)  // Red
+val LightOnPrimary = Color(0xFFFFFFFF)  // White
+val LightOnSecondary = Color(0xFF000000)  // Black
+val LightOnBackground = Color(0xFF000000)  // Black
+val LightOnSurface = Color(0xFF000000)  // Black
+val LightAccent = Color(0xFFFF9800)  // Orange
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Dark Theme Colors
+val DarkPrimary = Color(0xFF90CAF9)  // Light Blue
+val DarkPrimaryVariant = Color(0xFF1976D2)  // Blue
+val DarkSecondary = Color(0xFF03DAC5)  // Teal
+val DarkBackground = Color(0xFF121212)  // Very Dark Gray
+val DarkSurface = Color(0xFF1E1E1E)  // Dark Gray
+val DarkError = Color(0xFFCF6679)  // Pink
+val DarkOnPrimary = Color(0xFF000000)  // Black
+val DarkOnSecondary = Color(0xFF000000)  // Black
+val DarkOnBackground = Color(0xFFFFFFFF)  // White
+val DarkOnSurface = Color(0xFFFFFFFF)  // White
+val DarkAccent = Color(0xFFFFB74D)  // Light Orange
 
-// Define primary colors
-val BackgroundLightYellow = Color(0xFFFFF9C4)
-val BackgroundLightBlue = Color(0xFFB3E5FC)
-val BackgroundDarkGray = Color(0xFF424242)
-val BackgroundWhite = Color(0xFFFFFFFF)
-
-// Other UI colors
-val ShadowColor = Color.Black.copy(alpha = 0.8f)
-val CardBackgroundColor = Color(0xFF1E3A8A).copy(alpha = 0.3f)
-val TextColorWhite = Color.White
-val TextColorGray = Color.DarkGray
-
-
-val GlassBackgroundColor = Color(0x80FFFFFF) // White with 50% opacity
-val GlassShadowColor = Color(0x4D000000) // Black with 30% opacity
-val FrostedGlassCardColor = Color(0x66FFFFFF) // White with 40% opacity
-val IconTintColor = Color(0xCCFFFFFF) // White with 80% opacity
-
-
-
-val getBackgroundBrush: (rain: Double?) -> Brush = { rain ->
-    if (rain != null && rain > 50) {
-        Brush.verticalGradient(
-            colors = listOf(
-                BackgroundWhite,
-                BackgroundDarkGray
-            ),
-            startY = 0.0f,
-            endY = Float.POSITIVE_INFINITY
-        )
-    } else {
-        Brush.verticalGradient(
-            colors = listOf(
-                BackgroundLightYellow,
-                BackgroundLightBlue
-            ),
-            startY = 0.0f,
-            endY = Float.POSITIVE_INFINITY
-        )
-    }
-}
+// Weather-specific colors
+val SunnyYellow = Color(0xFFFFEB3B)
+val CloudyGray = Color(0xFF90A4AE)
+val RainyBlue = Color(0xFF64B5F6)
+val StormPurple = Color(0xFF9575CD)
+val HighTemp = Color(0xFFE57373)  // Warm Red
+val LowTemp = Color(0xFF64B5F6)   // Cool Blue

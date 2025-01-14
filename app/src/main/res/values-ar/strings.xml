@@ -1,11 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">meteo_app_tp</string>
-    <string name="location">لديه</string>
-    <string name="main_text">اليوم</string>
-    <string name="second_text">في الساعات القادمة</string>
-    <string name="third_text">الأيام القادمة</string>
-    <string name="settings_title">الإعدادات</string>
-    <string name="select_language">اختر اللغة</string>
-    <string name="language_selection">لغة</string>
+    <!-- Common -->
+    <string name="app_name">تطبيق الطقس</string>
+    <string name="unknown_error">حدث خطأ غير معروف</string>
+    <string name="no_internet">لا يوجد اتصال بالإنترنت</string>
+
+    <!-- Weather Display Labels -->
+    <string name="current_weather">الطقس الحالي</string>
+    <string name="hourly_forecast">توقعات كل ساعة</string>
+    <string name="daily_forecast">توقعات يومية</string>
+
+    <!-- Weather Metrics -->
+    <string name="temperature">درجة الحرارة</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="wind_speed">سرعة الرياح</string>
+    <string name="rain">المطر</string>
+    <string name="rain_chance">احتمال هطول الأمطار</string>
+
+    <!-- Units -->
+    <string name="celsius">°م</string>
+    <string name="kilometers_per_hour">كم/س</string>
+    <string name="millimeters">مم</string>
+    <string name="percentage">٪</string>
+
+    <!-- Settings -->
+    <string name="settings">الإعدادات</string>
+    <string name="language">اللغة</string>
+    <string name="english">الإنجليزية</string>
+    <string name="french">الفرنسية</string>
+    <string name="arabic">العربية</string>
+
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
+    <string name="theme_system">النظام الافتراضي</string>
+    <string name="theme_selection">اختيار المظهر</string>
+    <string name="cancel">إلغاء</string>
 </resources>
